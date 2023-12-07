@@ -23,6 +23,7 @@ function desenharCartela(jogador) {
 
     //Criar tabela do bingo
     const tabela = document.createElement('table');
+    tabela.setAttribute("id", "cartela" + jogador.nome);
     const thead = document.createElement('thead');
     const tbody = document.createElement('tbody');
 
@@ -48,10 +49,10 @@ function desenharCartela(jogador) {
     thead.appendChild(thG);
     thead.appendChild(thO);
 
-
-
     for (var i = 0; i < 5; i++) {
+
         const tr = document.createElement('tr');
+
         for (var j = 0; j < 5; j++) {
             const td = document.createElement('td')
             td.innerText = jogador.cartela[j][i];
@@ -103,13 +104,15 @@ function inscreverJogador() {
     const cartela = gerarCartela();
 
     const jogador = {
-        nome: nome, cartela: cartela
+        nome: nome, cartela: cartela, numerosMarcados: 0,
     }
 
     jogadores.push(jogador);
 
     console.log(jogadores);
+
     console.log(cartela);
+
     desenharCartela(jogador);
 }
 
@@ -119,6 +122,8 @@ function jogar() {
         alert('Eh preciso de dois jogadores para que o jogo ocorra.');
         return;
     }
+
+    var jogoEncerrado = false;
 
     const intervalo = setInterval(function () {
 
@@ -139,22 +144,45 @@ function jogar() {
 
         body_numeros.appendChild(span);
 
+        if (conferirJogo(jogadores, numeros_sorteados.at(-1)) == true){
+            clearInterval(intervalo);
+        }
 
-        conferirJogo(aleatorio);
-        verificarFimJogo(aleatorio);
         console.log(numeros_sorteados);
     }, 1000);
 
 }
 
-function conferirJogo(sorteado){
-    var numeros_cartelas = document.getElementsByTagName('td');
-    
-    for (var i = 0; numeros_cartelas.length; i++){
-        if(numeros_cartelas[i].innerText == sorteado){
-            numeros_cartelas[i].style.backgroundColor = 'LightSlateGray';
+function conferirJogo(jogadores, sorteado) {
+
+    for (var i = 0; i < jogadores.length; i++) {
+
+        const cartelaJogadorElement = document.getElementById("cartela" + jogadores[i].nome);
+
+        var numerosCartelaJogadorElement = cartelaJogadorElement.getElementsByTagName('td');
+
+        for (var j = 0; j < numerosCartelaJogadorElement.length; j++) {
+
+            if (numerosCartelaJogadorElement[j].innerText == sorteado) {
+
+                numerosCartelaJogadorElement[j].style.backgroundColor = 'LightSlateGray';
+
+                jogadores[i].numerosMarcados += 1;
+
+                break;
+
+            }
+
+        };
+
+        console.log(jogadores.length);
+
+        if (jogadores[i].numerosMarcados >= 25) {
+            alert('O jogador ' + jogadores[i].nome + ' venceu!!!!');
+            
+            return true;
         }
     }
+
+    return false;
 }
-
-
